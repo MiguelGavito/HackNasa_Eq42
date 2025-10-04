@@ -11,3 +11,88 @@
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meteor Madness</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+    .background {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      background: url('public/Open_Cluster_NGC_1858_(52514597517).jpg') center center/cover no-repeat;
+      z-index: 1;
+    }
+    .asteroid {
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 100vh;
+      max-width: 55vw;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .menu-content {
+      position: absolute;
+      left: 7vw;
+      top: 15vh;
+      z-index: 3;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 3vh;
+    }
+    .title {
+      font-size: 3.5vw;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      line-height: 1.1;
+      margin-bottom: 2vh;
+      text-shadow: 2px 2px 8px #000;
+    }
+    .start-btn {
+      font-size: 2.5vw;
+      padding: 1vh 4vw;
+      background: transparent;
+      color: #fff;
+      border: 2px solid #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      font-family: inherit;
+      margin-top: 2vh;
+    }
+    .start-btn:hover {
+      background: #fff;
+      color: #222;
+    }
+    @media (max-width: 700px) {
+      .title { font-size: 7vw; }
+      .start-btn { font-size: 5vw; padding: 2vh 8vw; }
+      .asteroid { max-width: 80vw; }
+    }
+  </style>
+</head>
+<body>
+  <div class="background"></div>
+  <img src="public/Meteorite-PNG-Photos.png" alt="Asteroide" class="asteroid">
+  <div class="menu-content">
+    <div class="title">METEOR<br>MADNESS</div>
+    <button class="start-btn">INICIAR</button>
+  </div>
+</body>
+</html>
