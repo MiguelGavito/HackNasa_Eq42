@@ -1,0 +1,177 @@
+[
+  {
+    "id": "2025-IMPACT",
+    "name": "Impactador-2025",
+    "diameter": 1.2,
+    "velocity": 18.5,
+    "distance_from_earth": 7500000,
+    "risk_level": "HIGH",
+    "impact_probability": 0.15,
+    "composition": "rocky",
+    "orbital_period": 892.3,
+    "discovery_date": "2024-03-15",
+    "last_observation": "2024-10-01",
+    "absolute_magnitude": 19.8,
+    "is_potentially_hazardous": true,
+    "close_approach_data": [
+      {
+        "date": "2025-04-13",
+        "distance_au": 0.048,
+        "distance_km": 7180000,
+        "velocity_kms": 18.5,
+        "relative_velocity": {
+          "kilometers_per_second": "18.52",
+          "kilometers_per_hour": "66672.45",
+          "miles_per_hour": "41435.12"
+        }
+      }
+    ],
+    "physical_characteristics": {
+      "diameter_min": 1.0,
+      "diameter_max": 1.4,
+      "rotation_period": 4.2,
+      "density": 2.5,
+      "albedo": 0.14
+    }
+  },
+  {
+    "id": "2023-BU",
+    "name": "Apophis-like",
+    "diameter": 0.34,
+    "velocity": 12.8,
+    "distance_from_earth": 15000000,
+    "risk_level": "MEDIUM",
+    "impact_probability": 0.003,
+    "composition": "metallic",
+    "orbital_period": 324.1,
+    "discovery_date": "2023-01-21",
+    "last_observation": "2024-09-28",
+    "absolute_magnitude": 21.2,
+    "is_potentially_hazardous": false,
+    "close_approach_data": [
+      {
+        "date": "2029-04-13",
+        "distance_au": 0.096,
+        "distance_km": 14300000,
+        "velocity_kms": 12.8,
+        "relative_velocity": {
+          "kilometers_per_second": "12.84",
+          "kilometers_per_hour": "46224.00",
+          "miles_per_hour": "28716.32"
+        }
+      }
+    ],
+    "physical_characteristics": {
+      "diameter_min": 0.28,
+      "diameter_max": 0.40,
+      "rotation_period": 30.56,
+      "density": 7.8,
+      "albedo": 0.23
+    }
+  },
+  {
+    "id": "2024-XR15",
+    "name": "Centaurus Prime",
+    "diameter": 0.85,
+    "velocity": 22.3,
+    "distance_from_earth": 25000000,
+    "risk_level": "MEDIUM",
+    "impact_probability": 0.008,
+    "composition": "rocky",
+    "orbital_period": 567.8,
+    "discovery_date": "2024-11-08",
+    "last_observation": "2024-12-01",
+    "absolute_magnitude": 20.1,
+    "is_potentially_hazardous": true,
+    "close_approach_data": [
+      {
+        "date": "2026-08-22",
+        "distance_au": 0.169,
+        "distance_km": 25280000,
+        "velocity_kms": 22.3,
+        "relative_velocity": {
+          "kilometers_per_second": "22.34",
+          "kilometers_per_hour": "80424.00",
+          "miles_per_hour": "49967.88"
+        }
+      }
+    ],
+    "physical_characteristics": {
+      "diameter_min": 0.75,
+      "diameter_max": 0.95,
+      "rotation_period": 8.7,
+      "density": 2.2,
+      "albedo": 0.16
+    }
+  },
+  {
+    "id": "2024-GH9",
+    "name": "Vega Minor",
+    "diameter": 0.12,
+    "velocity": 15.2,
+    "distance_from_earth": 45000000,
+    "risk_level": "LOW",
+    "impact_probability": 0.0001,
+    "composition": "icy",
+    "orbital_period": 1023.5,
+    "discovery_date": "2024-07-03",
+    "last_observation": "2024-11-15",
+    "absolute_magnitude": 24.7,
+    "is_potentially_hazardous": false,
+    "close_approach_data": [
+      {
+        "date": "2027-12-09",
+        "distance_au": 0.304,
+        "distance_km": 45500000,
+        "velocity_kms": 15.2,
+        "relative_velocity": {
+          "kilometers_per_second": "15.23",
+          "kilometers_per_hour": "54828.00",
+          "miles_per_hour": "34064.54"
+        }
+      }
+    ],
+    "physical_characteristics": {
+      "diameter_min": 0.09,
+      "diameter_max": 0.15,
+      "rotation_period": 12.4,
+      "density": 0.9,
+      "albedo": 0.04
+    }
+  },
+  {
+    "id": "2025-KL7",
+    "name": "Draco Express",
+    "diameter": 2.1,
+    "velocity": 28.7,
+    "distance_from_earth": 5200000,
+    "risk_level": "HIGH",
+    "impact_probability": 0.25,
+    "composition": "metallic",
+    "orbital_period": 445.2,
+    "discovery_date": "2024-08-19",
+    "last_observation": "2024-11-30",
+    "absolute_magnitude": 18.9,
+    "is_potentially_hazardous": true,
+    "close_approach_data": [
+      {
+        "date": "2025-06-07",
+        "distance_au": 0.035,
+        "distance_km": 5240000,
+        "velocity_kms": 28.7,
+        "relative_velocity": {
+          "kilometers_per_second": "28.73",
+          "kilometers_per_hour": "103428.00",
+          "miles_per_hour": "64265.91"
+        }
+      }
+    ],
+    "physical_characteristics": {
+      "diameter_min": 1.85,
+      "diameter_max": 2.35,
+      "rotation_period": 6.1,
+      "density": 7.2,
+      "albedo": 0.31
+    }
+  }
+]
