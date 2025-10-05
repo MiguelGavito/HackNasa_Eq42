@@ -333,7 +333,7 @@ const AsteroidControls = ({
           }}
           startIcon={<LaunchIcon />}
         >
-          {isSimulating ? 'Simulando...' : '🚀 Lanzar Asteroide'}
+          {isSimulating ? 'Simulando...' : 'Lanzar Asteroide'}
         </Button>
 
         {!impactLocation && (

@@ -122,7 +122,7 @@ const AsteroidLauncher = () => {
       {/* Header */}
       <Box textAlign="center" mb={3}>
         <Typography variant="h3" component="h1" gutterBottom sx={{ color: '#ff4444', fontWeight: 'bold' }}>
-          🌍💥 Asteroid Launcher
+          Asteroid Launcher
         </Typography>
         <Typography variant="h6" color="text.secondary" paragraph>
           Simula impactos de asteroides y descubre su poder destructivo

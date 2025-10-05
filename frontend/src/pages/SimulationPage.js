@@ -89,7 +89,7 @@ const SimulationPage = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h3" component="h1" gutterBottom sx={{ color: '#00ff88', textAlign: 'center' }}>
-        🎯 Simulación de Impacto
+        Simulación de Impacto
       </Typography>
       
       <Grid container spacing={4}>

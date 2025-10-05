@@ -110,7 +110,7 @@ const RiskAnalysisPage = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h3" component="h1" gutterBottom sx={{ color: '#ff6b35', textAlign: 'center' }}>
-        📊 Análisis de Riesgos
+        Análisis de Riesgos
       </Typography>
 
       {/* Selector de Asteroide */}
