@@ -11,7 +11,7 @@ import {
   Alert
 } from '@mui/material';
 import {
-  Explosion as ExplosionIcon,
+  FlashOn as ExplosionIcon,
   Landscape as LandscapeIcon,
   People as PeopleIcon,
   AttachMoney as MoneyIcon,

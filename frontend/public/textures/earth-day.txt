@@ -1,0 +1,14 @@
+Para solucionar el error, necesitas descargar una textura de la Tierra.
+
+OPCIÓN 1 - Texturas gratuitas de la NASA:
+1. Ve a: https://visibleearth.nasa.gov/images/57752/blue-marble-land-surface-shallow-water-and-shaded-topography
+2. Descarga la imagen
+3. Guárdala como "earth-day.jpg" en esta carpeta
+
+OPCIÓN 2 - Usar una imagen temporal:
+1. Busca en Google "earth texture 4k" 
+2. Descarga una imagen libre de derechos
+3. Renómbrala a "earth-day.jpg"
+
+OPCIÓN 3 - Usar color sólido temporalmente:
+Modifica el código para usar un color sólido en lugar de textura.

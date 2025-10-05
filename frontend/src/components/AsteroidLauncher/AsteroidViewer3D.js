@@ -15,11 +15,9 @@ import * as THREE from 'three';
 const Earth = ({ impactLocation, showImpact, impactIntensity }) => {
   const earthRef = useRef();
   const impactRef = useRef();
-  const [earthTexture, normalTexture, specularTexture] = useTexture([
-    '/textures/earth-day.jpg',
-    '/textures/earth-normal.jpg', 
-    '/textures/earth-specular.jpg'
-  ]);
+  
+  // Usar solo la textura de día de la Tierra
+  const earthTexture = useTexture('/textures/earth-day.jpg');
 
   useFrame((state) => {
     if (earthRef.current) {
@@ -57,8 +55,6 @@ const Earth = ({ impactLocation, showImpact, impactIntensity }) => {
       <Sphere ref={earthRef} args={[1, 64, 64]} position={[0, 0, 0]}>
         <meshPhongMaterial 
           map={earthTexture}
-          normalMap={normalTexture}
-          specularMap={specularTexture}
           shininess={100}
         />
       </Sphere>

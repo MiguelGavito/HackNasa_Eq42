@@ -15,7 +15,7 @@ class AsteroidProperties:
     density: float   # kg/m³ (default: 2500 para asteroides rocosos)
     velocity: float  # km/s
     angle: float     # grados (ángulo de impacto)
-    composition: str # "rocky", "metallic", "icy"
+    composition: str # "rocky", "metallic", "icy" //quitar luego
 
 @dataclass
 class ImpactLocation:
