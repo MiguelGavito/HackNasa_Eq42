@@ -8,7 +8,8 @@ import {
   Button, 
   Box,
   Chip,
-  LinearProgress
+  LinearProgress,
+  Paper
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import * as api from '../services/api';
@@ -50,11 +51,16 @@ const HomePage = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{
+      py: 4,
+      background: '#181c2b',
+      minHeight: '100vh'
+    }}>
       {/* Hero Section */}
       <Box textAlign="center" mb={6}>
-        <Typography variant="h2" component="h1" gutterBottom sx={{ color: '#00ff88', fontWeight: 'bold' }}>
-          🌟 Meteor Madness
+        <Typography variant="h2" component="h1" gutterBottom sx={{ fontWeight: 'bold' }}>
+          <span style={{ color: '#00ff88' }}>Meteor </span>
+          <span style={{ color: '#fff' }}>Madness</span>
         </Typography>
         <Typography variant="h5" color="text.secondary" paragraph>
           Herramienta Interactiva de Simulación de Impactos de Asteroides
@@ -68,15 +74,15 @@ const HomePage = () => {
             variant="contained" 
             size="large" 
             onClick={() => navigate('/asteroid-launcher')}
-            sx={{ mr: 2, bgcolor: '#ff4444', '&:hover': { bgcolor: '#cc3333' } }}
+            sx={{ mr: 2, bgcolor: '#00ff88', color: '#181c2b', fontWeight: 700 }}
           >
-            🚀 Asteroid Launcher
+            Asteroid Launcher
           </Button>
           <Button 
-            variant="contained" 
+            variant="outlined" 
             size="large" 
             onClick={() => navigate('/simulation')}
-            sx={{ mr: 2, bgcolor: '#00ff88', '&:hover': { bgcolor: '#00cc70' } }}
+            sx={{ mr: 2, borderColor: '#fff', color: '#fff', fontWeight: 700 }}
           >
             Simulación Avanzada
           </Button>
@@ -84,46 +90,12 @@ const HomePage = () => {
             variant="outlined" 
             size="large"
             onClick={() => navigate('/risk-analysis')}
-            sx={{ borderColor: '#ff6b35', color: '#ff6b35' }}
+            sx={{ borderColor: '#fff', color: '#fff', fontWeight: 700 }}
           >
             Análisis de Riesgos
           </Button>
         </Box>
-      </Box>
 
-      {/* Asteroid Launcher Highlight */}
-      <Box sx={{ mb: 6, p: 4, bgcolor: 'rgba(255, 68, 68, 0.1)', borderRadius: 3, border: '2px solid #ff4444' }}>
-        <Grid container spacing={4} alignItems="center">
-          <Grid item xs={12} md={8}>
-            <Typography variant="h4" component="h2" gutterBottom sx={{ color: '#ff4444' }}>
-              🚀 ¡Nuevo! Asteroid Launcher Interactivo
-            </Typography>
-            <Typography variant="body1" paragraph>
-              Experimenta el poder destructivo de los asteroides con nuestra nueva herramienta interactiva. 
-              Personaliza el tamaño, velocidad y composición del asteroide, selecciona cualquier punto de la Tierra 
-              y observa los efectos devastadores en tiempo real.
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Inspirado en neal.fun/asteroid-launcher • Simulación científicamente precisa
-            </Typography>
-          </Grid>
-          <Grid item xs={12} md={4} sx={{ textAlign: 'center' }}>
-            <Button 
-              variant="contained" 
-              size="large"
-              onClick={() => navigate('/asteroid-launcher')}
-              sx={{ 
-                bgcolor: '#ff4444', 
-                '&:hover': { bgcolor: '#cc3333' },
-                fontSize: '1.2rem',
-                px: 4,
-                py: 2
-              }}
-            >
-              🌍💥 Lanzar Ahora
-            </Button>
-          </Grid>
-        </Grid>
       </Box>
 
       {/* Features Section */}
@@ -142,9 +114,9 @@ const HomePage = () => {
           </Card>
         </Grid>
         <Grid item xs={12} md={4}>
-          <Card sx={{ height: '100%', bgcolor: 'rgba(26, 26, 46, 0.9)', border: '1px solid #ff6b35' }}>
+          <Card sx={{ height: '100%', bgcolor: 'rgba(26, 26, 46, 0.9)', border: '1px solid #fff' }}>
             <CardContent sx={{ textAlign: 'center' }}>
-              <TimelineIcon sx={{ fontSize: 60, color: '#ff6b35', mb: 2 }} />
+              <TimelineIcon sx={{ fontSize: 60, color: '#fff', mb: 2 }} />
               <Typography variant="h5" component="h2" gutterBottom>
                 Simulación Avanzada
               </Typography>
@@ -155,9 +127,9 @@ const HomePage = () => {
           </Card>
         </Grid>
         <Grid item xs={12} md={4}>
-          <Card sx={{ height: '100%', bgcolor: 'rgba(26, 26, 46, 0.9)', border: '1px solid #ffaa00' }}>
+          <Card sx={{ height: '100%', bgcolor: 'rgba(26, 26, 46, 0.9)', border: '1px solid #fff' }}>
             <CardContent sx={{ textAlign: 'center' }}>
-              <WarningIcon sx={{ fontSize: 60, color: '#ffaa00', mb: 2 }} />
+              <WarningIcon sx={{ fontSize: 60, color: '#fff', mb: 2 }} />
               <Typography variant="h5" component="h2" gutterBottom>
                 Análisis de Riesgos
               </Typography>
@@ -169,14 +141,16 @@ const HomePage = () => {
         </Grid>
       </Grid>
 
-      {/* Asteroids Section */}
-      <Typography variant="h4" component="h2" gutterBottom sx={{ color: '#00ff88' }}>
-        Asteroides Monitoreados
-      </Typography>
+        {/* Inspiración */}
+        <Box textAlign="center" mt={2} mb={4}>
+          <Typography variant="body2" color="text.secondary">
+            Inspirado en neal.fun/asteroid-launcher • Simulación científicamente precisa
+          </Typography>
+        </Box>
       
       {loading ? (
         <Box sx={{ width: '100%', mt: 2 }}>
-          <LinearProgress sx={{ bgcolor: 'rgba(0, 255, 136, 0.2)' }} />
+          <LinearProgress sx={{ bgcolor: 'rgba(0, 255, 136, 0.2)', height: 8, borderRadius: 4 }} />
         </Box>
       ) : (
         <Grid container spacing={3}>
@@ -185,7 +159,7 @@ const HomePage = () => {
               <Card 
                 sx={{ 
                   bgcolor: 'rgba(26, 26, 46, 0.9)', 
-                  border: `1px solid ${asteroid.risk_level === 'HIGH' ? '#ff4444' : asteroid.risk_level === 'MEDIUM' ? '#ffaa00' : '#00ff88'}`,
+                  border: `1px solid ${asteroid.risk_level === 'HIGH' ? '#fff' : asteroid.risk_level === 'MEDIUM' ? '#fff' : '#00ff88'}`,
                   transition: 'all 0.3s ease',
                   '&:hover': {
                     transform: 'translateY(-5px)',
@@ -245,7 +219,7 @@ const HomePage = () => {
                       variant="outlined" 
                       size="small"
                       onClick={() => navigate(`/risk-analysis?asteroid=${asteroid.id}`)}
-                      sx={{ borderColor: '#ff6b35', color: '#ff6b35' }}
+                      sx={{ borderColor: '#fff', color: '#fff' }}
                     >
                       Ver Riesgos
                     </Button>
