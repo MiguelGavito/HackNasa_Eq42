@@ -10,15 +10,16 @@ const NavBar = () => {
     <AppBar position="static" sx={{ background: 'linear-gradient(90deg, #0c1445 0%, #1a1a2e 100%)' }}>
       <Toolbar>
         <RocketLaunchIcon sx={{ mr: 2, color: '#00ff88' }} />
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#00ff88', fontWeight: 'bold' }}>
-          Meteor Madness
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
+          <span style={{ color: '#00ff88' }}>Meteor </span>
+          <span style={{ color: '#fff' }}>Madness</span>
         </Typography>
         <Box>
           <Button color="inherit" onClick={() => navigate('/')}>
             Inicio
           </Button>
           <Button color="inherit" onClick={() => navigate('/asteroid-launcher')}>
-            🚀 Launcher
+            Launcher
           </Button>
           <Button color="inherit" onClick={() => navigate('/simulation')}>
             Simulación
