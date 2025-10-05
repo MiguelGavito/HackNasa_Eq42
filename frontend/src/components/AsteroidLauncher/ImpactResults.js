@@ -57,20 +57,40 @@ const ImpactResults = ({ results, asteroidData, impactLocation }) => {
   const destruction = getDestructionLevel(results.energy_released);
 
   const getLocationInfo = (lat, lon) => {
-    // Determinar océano o continente basado en coordenadas aproximadas
-    if ((lat >= -60 && lat <= 70) && (lon >= -20 && lon <= 50)) return 'África/Europa';
-    if ((lat >= -55 && lat <= 70) && (lon >= -170 && lon <= -30)) return 'Américas';
-    if ((lat >= -50 && lat <= 50) && (lon >= 60 && lon <= 150)) return 'Asia/Oceanía';
-    if (Math.abs(lat) > 60) return lat > 0 ? 'Ártico' : 'Antártica';
-    
-    // Verificar si es océano (aproximación muy básica)
-    const isOcean = (
-      (lat >= -40 && lat <= 40 && lon >= -180 && lon <= -60) || // Pacífico
-      (lat >= -40 && lat <= 60 && lon >= -40 && lon <= 20) ||   // Atlántico
-      (lat >= -40 && lat <= 30 && lon >= 40 && lon <= 120)      // Índico
-    );
-    
-    return isOcean ? 'Océano' : 'Continente';
+    // América (Norte, Centro, Sur)
+    if (lat >= -56 && lat <= 83 && lon >= -170 && lon <= -30) return 'América';
+    // Europa
+    if (lat >= 35 && lat <= 71 && lon >= -25 && lon <= 60) return 'Europa';
+    // África
+    if (lat >= -35 && lat <= 37 && lon >= -20 && lon <= 55) return 'África';
+    // Asia
+    if (lat >= 5 && lat <= 80 && lon >= 55 && lon <= 180) return 'Asia';
+    // Oceanía
+    if (lat >= -50 && lat <= 0 && lon >= 110 && lon <= 180) return 'Oceanía';
+
+    // Océano Ártico: latitud > 70, fuera de los límites de Europa, Asia y América
+    if (lat > 70 &&
+        !((lat >= 71 && lat <= 83 && lon >= -170 && lon <= -30) || // América
+          (lat >= 71 && lat <= 80 && lon >= 55 && lon <= 180) ||    // Asia
+          (lat >= 71 && lat <= 71 && lon >= -25 && lon <= 60)))     // Europa (prácticamente no hay)
+      return 'Océano Ártico';
+
+    // Océano Antártico: latitud < -70, fuera de los límites de América, Oceanía, África
+    if (lat < -70 &&
+        !((lat >= -56 && lat <= -70 && lon >= -170 && lon <= -30) || // América Sur
+          (lat >= -70 && lat <= 0 && lon >= 110 && lon <= 180) ||     // Oceanía
+          (lat >= -70 && lat <= -35 && lon >= -20 && lon <= 55)))     // África
+      return 'Antártica';
+
+    // Océano Pacífico
+    if (lat >= -50 && lat <= 50 && (lon <= -130 || lon >= 150)) return 'Océano Pacífico';
+    // Océano Atlántico
+    if (lat >= -60 && lat <= 70 && lon >= -70 && lon <= 20) return 'Océano Atlántico';
+    // Océano Índico
+    if (lat >= -50 && lat <= 30 && lon >= 20 && lon <= 120) return 'Océano Índico';
+
+    // Si no coincide, inespecificado
+    return 'Inespecificado';
   };
 
   return (

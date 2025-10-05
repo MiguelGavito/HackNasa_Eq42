@@ -84,7 +84,7 @@ const Earth = ({ impactLocation, showImpact, impactIntensity, onEarthClick }) =>
         ref={earthRef} 
         args={[1, 64, 64]} 
         position={[0, 0, 0]}
-        rotation={[0,Math.PI / 1, 0]}
+        rotation={[0, Math.PI / 1, 0]}
         onClick={onEarthClick}
       >
         <meshPhongMaterial 
@@ -343,14 +343,16 @@ const AsteroidViewer3D = ({
       if (event.intersections && event.intersections.length > 0) {
         const intersection = event.intersections[0];
         const worldPosition = intersection.point;
-        
+
         // Normalizar a la superficie de la esfera (radio = 1)
         const normalizedPosition = worldPosition.clone().normalize();
         
         // Convertir posición 3D a lat/lon
         const lat = Math.asin(normalizedPosition.y) * (180 / Math.PI);
-        const lon = Math.atan2(normalizedPosition.z, normalizedPosition.x) * (180 / Math.PI);
-        
+        let lon = Math.atan2(normalizedPosition.z, normalizedPosition.x) * (180 / Math.PI);
+        // Normalizar longitud a [-180, 180]
+        if (lon > 180) lon -= 360;
+        if (lon < -180) lon += 360;
         onLocationSelect({ lat, lon });
       }
       setClickCount(0);
@@ -467,7 +469,7 @@ const AsteroidViewer3D = ({
         onPointerDown={handleCanvasClick}
       >
         {/* Iluminación */}
-        <ambientLight intensity={0.3} />
+        <ambientLight intensity={0.7} />
         <directionalLight 
           position={[5, 5, 5]} 
           intensity={1} 
@@ -476,7 +478,7 @@ const AsteroidViewer3D = ({
         <pointLight 
           position={[-5, -5, -5]} 
           intensity={0.5} 
-          color="#4488ff" 
+          color="#4f88eaff" 
         />
 
         {/* Estrellas de fondo */}
