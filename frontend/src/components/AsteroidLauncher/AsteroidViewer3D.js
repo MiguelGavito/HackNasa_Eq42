@@ -12,7 +12,7 @@ import {
 import * as THREE from 'three';
 
 // Componente de la Tierra
-const Earth = ({ impactLocation, showImpact, impactIntensity }) => {
+const Earth = ({ impactLocation, showImpact, impactIntensity, onEarthClick }) => {
   const earthRef = useRef();
   const impactRef = useRef();
   
@@ -20,9 +20,11 @@ const Earth = ({ impactLocation, showImpact, impactIntensity }) => {
   const earthTexture = useTexture('/textures/earth-day.jpg');
 
   useFrame((state) => {
+    /*
     if (earthRef.current) {
       earthRef.current.rotation.y += 0.002;
     }
+      */
 
     // Animación del impacto
     if (showImpact && impactRef.current) {
@@ -47,12 +49,43 @@ const Earth = ({ impactLocation, showImpact, impactIntensity }) => {
     return [x, y, z];
   };
 
+
+
+  const calculateRingRotation = () => {
+    if (!impactLocation) return [-Math.PI / 2, 0, 0];
+  
+    const lat = (impactLocation.lat * Math.PI) / 180;
+    const lon = (impactLocation.lon * Math.PI) / 180;
+    
+    // Crear vector normal hacia el centro de la Tierra
+    const normal = new THREE.Vector3(
+      Math.cos(lat) * Math.cos(lon),
+      Math.sin(lat),
+      Math.cos(lat) * Math.sin(lon)
+    );
+    
+    // Calcular rotación para que el anillo sea perpendicular al vector normal
+    const euler = new THREE.Euler();
+    const quaternion = new THREE.Quaternion();
+    
+    // Orientar el anillo para que mire hacia el centro
+    quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
+    euler.setFromQuaternion(quaternion);
+    
+    return [euler.x, euler.y, euler.z];
+  }
+
   const impactPos = getImpactPosition();
 
   return (
     <group>
       {/* Tierra */}
-      <Sphere ref={earthRef} args={[1, 64, 64]} position={[0, 0, 0]}>
+      <Sphere 
+        ref={earthRef} 
+        args={[1, 64, 64]} 
+        position={[0, 0, 0]}
+        onClick={onEarthClick}
+      >
         <meshPhongMaterial 
           map={earthTexture}
           shininess={100}
@@ -75,7 +108,7 @@ const Earth = ({ impactLocation, showImpact, impactIntensity }) => {
           <Ring 
             ref={impactRef}
             args={[0.02, 0.04, 16]}
-            rotation={[-Math.PI / 2, 0, 0]}
+            rotation={calculateRingRotation()}
           >
             <meshBasicMaterial 
               color={showImpact ? "#ff4444" : "#ffaa00"} 
@@ -259,40 +292,130 @@ const AsteroidViewer3D = ({
     console.log('¡Impacto detectado!');
   };
 
-  // Click handler para la Tierra
-  const EarthClickHandler = () => {
-    const { camera, raycaster } = useThree();
+  const [lastClickTime, setLastClickTime] = useState(0);
+  const [clickCount, setClickCount] = useState(0);
+
+  const handleCanvasClick = (event) => {
+    if (!onLocationSelect) return;
     
-    const handleClick = (event) => {
-      if (!onLocationSelect) return;
-      
-      // Convertir coordenadas del click a posición 3D
+    const currentTime = Date.now();
+    const timeDiff = currentTime - lastClickTime;
+    
+    if (timeDiff < 500 && clickCount === 1) {
+      // DOBLE CLICK DETECTADO
+      // Usar intersections del evento React Three Fiber
+      if (event.intersections && event.intersections.length > 0) {
+        const intersection = event.intersections[0];
+        const worldPosition = intersection.point;
+        
+        // Normalizar a la superficie de la esfera (radio = 1)
+        const normalizedPosition = worldPosition.clone().normalize();
+        
+        // Convertir posición 3D a lat/lon
+        const lat = Math.asin(normalizedPosition.y) * (180 / Math.PI);
+        const lon = Math.atan2(normalizedPosition.z, normalizedPosition.x) * (180 / Math.PI);
+        
+        onLocationSelect({ lat, lon });
+      }
+      setClickCount(0);
+    } else {
+      setClickCount(1);
+      setLastClickTime(currentTime);
+      setTimeout(() => setClickCount(0), 500);
+    }
+  };
+  /*
+  const handleCanvasClick = (event) => {
+    if (!onLocationSelect) return;
+  
+    const currentTime = Date.now();
+    const timeDiff = currentTime - lastClickTime;
+  
+    if (timeDiff < 500 && clickCount === 1) {
+      // DOBLE CLICK DETECTADO
       const mouse = new THREE.Vector2();
-      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      mouse.x = (event.point.x / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.point.y / window.innerHeight) * 2 + 1;
       
-      raycaster.setFromCamera(mouse, camera);
+      // Crear raycaster manualmente
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(mouse, event.camera);
       
       // Intersección con la esfera de la Tierra
       const sphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 1);
       const intersectionPoint = new THREE.Vector3();
       
       if (raycaster.ray.intersectSphere(sphere, intersectionPoint)) {
-        // Convertir posición 3D a lat/lon
         const lat = Math.asin(intersectionPoint.y) * (180 / Math.PI);
         const lon = Math.atan2(intersectionPoint.z, intersectionPoint.x) * (180 / Math.PI);
-        
         onLocationSelect({ lat, lon });
       }
+      
+    setClickCount(0);
+    } else {
+      setClickCount(1);
+      setLastClickTime(currentTime);
+      setTimeout(() => setClickCount(0), 500);
+    }
+  };
+  */
+
+  /*
+  // Click handler para la Tierra
+  const EarthClickHandler = () => {
+    const { camera, raycaster } = useThree();
+
+    
+    
+    const handleClick = (event) => {
+      if (!onLocationSelect) return;
+
+      const currentTime = Date.now();
+      const timeDiff = currentTime - lastClickTime;
+
+      // Solo ejecutar seleccion si es doble click (< 500ms)
+      if (timeDiff < 500 && clickCount === 1){
+          
+        // Convertir coordenadas del click a posición 3D
+        const rect = event.target.getBoundingClientRect();
+        const mouse = new THREE.Vector2();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        
+        raycaster.setFromCamera(mouse, camera);
+        
+        // Intersección con la esfera de la Tierra
+        const sphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 1);
+        const intersectionPoint = new THREE.Vector3();
+        
+        if (raycaster.ray.intersectSphere(sphere, intersectionPoint)) {
+          // Convertir posición 3D a lat/lon
+          const lat = Math.asin(intersectionPoint.y) * (180 / Math.PI);
+          const lon = Math.atan2(intersectionPoint.z, intersectionPoint.x) * (180 / Math.PI);
+          
+          onLocationSelect({ lat, lon });
+        } 
+        setClickCount(0); // Reset
+      } else {
+        // Primer click
+        setClickCount(1);
+        setLastClickTime(currentTime);
+        setTimeout(() => setClickCount(0), 500); // Auto-reset
+      }
+      
     };
 
     useEffect(() => {
-      window.addEventListener('click', handleClick);
-      return () => window.removeEventListener('click', handleClick);
-    }, []);
+      const canvas = document.querySelector('canvas');
+      if (canvas) {
+        canvas.addEventListener('click', handleClick);
+        return () => canvas.removeEventListener('click', handleClick);
+      }
+    }, [lastClickTime, clickCount]);
 
     return null;
   };
+  */
 
   useEffect(() => {
     if (isSimulating && !asteroidLaunched) {
@@ -303,7 +426,10 @@ const AsteroidViewer3D = ({
 
   return (
     <div style={{ width: '100%', height: '500px', background: '#000011' }}>
-      <Canvas camera={{ position: cameraPosition, fov: 60 }}>
+      <Canvas 
+        camera={{ position: cameraPosition, fov: 60 }}
+        onPointerDown={handleCanvasClick}
+      >
         {/* Iluminación */}
         <ambientLight intensity={0.3} />
         <directionalLight 
@@ -340,6 +466,7 @@ const AsteroidViewer3D = ({
           impactLocation={impactLocation}
           showImpact={showImpactEffect}
           impactIntensity={simulationResults ? 1 : 0}
+          onEarthClick={handleCanvasClick}
         />
 
         {/* Asteroide */}
@@ -363,8 +490,8 @@ const AsteroidViewer3D = ({
           />
         )}
 
-        {/* Handler para clicks en la Tierra */}
-        <EarthClickHandler />
+        
+        
       </Canvas>
 
       {/* UI overlay */}
