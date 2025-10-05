@@ -37,9 +37,13 @@ const AsteroidLauncher = () => {
   const handleLaunch = async () => {
     if (!impactLocation) return;
 
+    // Permitir animación repetible - reiniciar completamente el estado
     setIsSimulating(true);
-    setShowImpactEffect(false);
+    setShowImpactEffect(false);  
     setSimulationResults(null);
+    
+    // Pequeña pausa para reiniciar la animación visualmente
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     try {
       // Preparar datos para la simulación
@@ -82,24 +86,24 @@ const AsteroidLauncher = () => {
   };
 
   const calculateFallbackResults = () => {
-    // Cálculos básicos locales como backup
+    // Fallback básico - SIN datos demográficos (evita números incorrectos)
     const radius = asteroidData.diameter / 2;
     const volume = (4/3) * Math.PI * Math.pow(radius * 1000, 3); // m³
     const mass = volume * asteroidData.density; // kg
     const energy = 0.5 * mass * Math.pow(asteroidData.velocity * 1000, 2); // Joules
     const energyMT = energy / (4.184e15); // Megatons TNT
     
-    const craterDiameter = Math.pow(energyMT / 1000, 0.25) * asteroidData.diameter * 20;
-    const affectedArea = Math.PI * Math.pow(craterDiameter * 10, 2);
-    const casualties = Math.floor(affectedArea * 50 * 0.3); // Estimación básica
-    const economicDamage = affectedArea * 1e8;
+    // Fórmula corregida de cráter (sin multiplicar por 1000 incorrecto)
+    const craterDiameter = 1.8 * asteroidData.diameter * Math.pow(asteroidData.velocity / 12, 0.78);
+    const affectedArea = Math.PI * Math.pow(craterDiameter * 4, 2); // Radio de daño moderado
     
     return {
       crater_diameter: craterDiameter,
       energy_released: energyMT,
       affected_area: affectedArea,
-      casualties_estimate: casualties,
-      economic_damage: economicDamage
+      casualties_estimate: 0, // Sin datos demográficos = no mostramos víctimas falsas
+      economic_damage: affectedArea * 1e8,
+      warning: "Conexión con servicio demográfico fallida. Víctimas no calculadas."
     };
   };
 

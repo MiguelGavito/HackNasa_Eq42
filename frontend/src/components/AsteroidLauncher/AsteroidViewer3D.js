@@ -163,14 +163,49 @@ const Asteroid = ({
   useFrame((state, delta) => {
     if (!isLaunched || hasImpacted || !asteroidRef.current) return;
 
-    // Calcular dirección hacia el objetivo
-    const direction = new THREE.Vector3()
-      .subVectors(new THREE.Vector3(...targetPosition), new THREE.Vector3(...currentPosition))
-      .normalize();
+    const currentPos = new THREE.Vector3(...currentPosition);
+    const targetPos = new THREE.Vector3(...targetPosition);
+    
+    // Calcular trayectoria que evite atravesar la Tierra
+    const earthCenter = new THREE.Vector3(0, 0, 0);
+    const currentDistance = currentPos.length();
+    
+    // Si está muy cerca de la Tierra, usar trayectoria tangencial
+    let direction;
+    if (currentDistance < 2.5) {
+      // Trayectoria directa cuando está cerca
+      direction = new THREE.Vector3().subVectors(targetPos, currentPos).normalize();
+    } else {
+      // Trayectoria curva que evite pasar por el centro de la Tierra
+      const toTarget = new THREE.Vector3().subVectors(targetPos, currentPos);
+      const toEarth = new THREE.Vector3().subVectors(earthCenter, currentPos);
+      
+      // Si la trayectoria directa pasaría muy cerca del centro, ajustarla
+      const directPath = toTarget.clone().normalize();
+      const earthDirection = toEarth.clone().normalize();
+      const dotProduct = directPath.dot(earthDirection);
+      
+      if (dotProduct > 0.3) { // Si va hacia el centro de la Tierra
+        // Crear trayectoria tangencial
+        const perpendicular = new THREE.Vector3().crossVectors(directPath, new THREE.Vector3(0, 1, 0));
+        if (perpendicular.length() < 0.1) {
+          perpendicular.crossVectors(directPath, new THREE.Vector3(1, 0, 0));
+        }
+        perpendicular.normalize();
+        
+        // Mezclar dirección directa con perpendicular para evitar la Tierra
+        direction = directPath.multiplyScalar(0.7).add(perpendicular.multiplyScalar(0.3)).normalize();
+      } else {
+        direction = directPath;
+      }
+    }
 
-    // Mover asteroide
-    const speed = velocity * delta * 0.1;
-    const newPos = new THREE.Vector3(...currentPosition).add(direction.multiplyScalar(speed));
+    // Mover asteroide con velocidad variable según distancia
+    const distanceToTarget = currentPos.distanceTo(targetPos);
+    const speedMultiplier = Math.max(0.3, Math.min(1.0, distanceToTarget / 3));
+    const speed = velocity * delta * 0.15 * speedMultiplier;
+    
+    const newPos = currentPos.add(direction.multiplyScalar(speed));
     
     setCurrentPosition([newPos.x, newPos.y, newPos.z]);
     asteroidRef.current.position.copy(newPos);
@@ -179,9 +214,9 @@ const Asteroid = ({
     asteroidRef.current.rotation.x += delta * 2;
     asteroidRef.current.rotation.y += delta * 1.5;
 
-    // Verificar impacto (distancia a la Tierra)
-    const distanceToEarth = newPos.length();
-    if (distanceToEarth <= 1.05) { // Ligeramente fuera de la superficie
+    // Verificar impacto (distancia a la superficie de la Tierra)
+    const distanceToEarthSurface = newPos.length() - 1.0; // Restar radio de la Tierra
+    if (distanceToEarthSurface <= 0.05) { // Impacto a 50m de la superficie
       setHasImpacted(true);
       onImpact();
     }

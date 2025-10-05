@@ -47,10 +47,10 @@ const AsteroidControls = ({
   };
 
   const predefinedAsteroids = [
-    { name: 'Tunguska (1908)', diameter: 0.06, velocity: 27, composition: 'rocky' },
     { name: 'Chelyabinsk (2013)', diameter: 0.02, velocity: 19, composition: 'rocky' },
-    { name: 'Chicxulub (Dinosaurios)', diameter: 10, velocity: 20, composition: 'rocky' },
+    { name: 'Tunguska (1908)', diameter: 0.06, velocity: 27, composition: 'rocky' },
     { name: 'Apophis (Hipotético)', diameter: 0.34, velocity: 12.8, composition: 'rocky' },
+    { name: 'Asteroide Grande (5km)', diameter: 5.0, velocity: 15, composition: 'rocky' },
     { name: 'Asteroide Personalizado', diameter: localData.diameter, velocity: localData.velocity, composition: localData.composition }
   ];
 
@@ -154,14 +154,14 @@ const AsteroidControls = ({
             value={localData.diameter}
             onChange={(e, value) => handleDataChange('diameter', value)}
             min={0.01}
-            max={15}
+            max={5}
             step={0.01}
             marks={[
               { value: 0.02, label: Math.abs(localData.diameter - 0.02) < 0.0001 ? 'Chelyabinsk' : '' },
               { value: 0.06, label: Math.abs(localData.diameter - 0.06) < 0.0001 ? 'Tunguska' : '' },
               { value: 0.34, label: Math.abs(localData.diameter - 0.34) < 0.0001 ? 'Apophis' : '' },
               { value: 1, label: Math.abs(localData.diameter - 1) < 0.0001 ? '1 km' : '' },
-              { value: 10, label: Math.abs(localData.diameter - 10) < 0.0001 ? 'Chicxulub' : '' }
+              { value: 5, label: Math.abs(localData.diameter - 5) < 0.0001 ? 'Máximo' : '' }
             ]}
             sx={{ color: '#00ff88',
               '& .MuiSlider-markLabel': {

@@ -3,12 +3,17 @@ Integración con APIs de la NASA
 Servicio para obtener datos reales de asteroides cercanos a la Tierra
 """
 
+import os
 import requests
 import pandas as pd
 from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
 import json
 import logging
+from dotenv import load_dotenv
+
+# Cargar variables de entorno
+load_dotenv()
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -22,9 +27,9 @@ class NASAApiService:
         Inicializar el servicio de NASA API
         
         Args:
-            api_key: Clave API de NASA (opcional, usa DEMO_KEY por defecto)
+            api_key: Clave API de NASA (opcional, carga desde .env)
         """
-        self.api_key = api_key or "DEMO_KEY"
+        self.api_key = api_key or os.getenv('NASA_API_KEY', 'DEMO_KEY')
         self.base_urls = {
             "neo": "https://api.nasa.gov/neo/rest/v1",
             "sbdb": "https://ssd-api.jpl.nasa.gov/sbdb.api",
@@ -67,6 +72,176 @@ class NASAApiService:
         except requests.exceptions.RequestException as e:
             logger.error(f"Error al obtener NEO feed: {e}")
             return {}
+    
+    def get_processed_asteroids(self, limit: int = 20) -> List[Dict[str, Any]]:
+        """
+        Obtener asteroides procesados y limitados para la aplicación
+        
+        Args:
+            limit: Número máximo de asteroides a devolver
+            
+        Returns:
+            Lista de asteroides procesados y listos para usar
+        """
+        try:
+            # Obtener datos RAW de NASA (últimos 7 días)
+            raw_data = self.get_neo_feed()
+            
+            # Procesar asteroides recientes
+            processed_asteroids = []
+            if raw_data and 'near_earth_objects' in raw_data:
+                neo_objects = raw_data['near_earth_objects']
+                
+                # Iterar por todas las fechas y asteroides
+                for date_key, asteroids_list in neo_objects.items():
+                    for asteroid in asteroids_list:
+                        try:
+                            processed_asteroid = self._process_asteroid_data(asteroid)
+                            if processed_asteroid:
+                                processed_asteroids.append(processed_asteroid)
+                        except Exception as e:
+                            logger.warning(f"Error procesando asteroide {asteroid.get('id', 'unknown')}: {e}")
+                            continue
+            
+            # Agregar algunos asteroides históricos peligrosos conocidos para demo
+            historical_dangerous = self._get_historical_dangerous_asteroids()
+            processed_asteroids.extend(historical_dangerous)
+            
+            # Remover duplicados por ID
+            seen_ids = set()
+            unique_asteroids = []
+            for asteroid in processed_asteroids:
+                if asteroid['id'] not in seen_ids:
+                    seen_ids.add(asteroid['id'])
+                    unique_asteroids.append(asteroid)
+            
+            # Ordenar: primero peligrosos, luego por tamaño
+            unique_asteroids.sort(key=lambda x: (
+                -int(x.get('is_potentially_hazardous_asteroid', False)),
+                -x.get('estimated_diameter_km_max', 0)
+            ))
+            
+            total_found = len(unique_asteroids)
+            result = unique_asteroids[:limit]
+            
+            logger.info(f"Procesados {len(result)} asteroides de {total_found} únicos encontrados")
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error procesando asteroides: {e}")
+            return []
+    
+    def _get_historical_dangerous_asteroids(self) -> List[Dict[str, Any]]:
+        """
+        Obtener asteroides históricos peligrosos conocidos para la demostración
+        
+        Returns:
+            Lista de asteroides históricos con datos realistas
+        """
+        return [
+            {
+                'id': '99942',
+                'name': '99942 Apophis',
+                'estimated_diameter_km_min': 0.325,
+                'estimated_diameter_km_max': 0.375,
+                'relative_velocity_km_s': 7.42,
+                'miss_distance_km': 31000,
+                'is_potentially_hazardous_asteroid': True,
+                'close_approach_date': '2029-04-13',
+                'nasa_jpl_url': 'https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=99942',
+                'absolute_magnitude_h': 19.7
+            },
+            {
+                'id': '101955',
+                'name': '101955 Bennu',
+                'estimated_diameter_km_min': 0.492,
+                'estimated_diameter_km_max': 0.565,
+                'relative_velocity_km_s': 11.16,
+                'miss_distance_km': 480000,
+                'is_potentially_hazardous_asteroid': True,
+                'close_approach_date': '2182-09-25',
+                'nasa_jpl_url': 'https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=101955',
+                'absolute_magnitude_h': 20.9
+            },
+            {
+                'id': '1036',
+                'name': '1036 Ganymed',
+                'estimated_diameter_km_min': 31.7,
+                'estimated_diameter_km_max': 35.1,
+                'relative_velocity_km_s': 13.63,
+                'miss_distance_km': 56000000,
+                'is_potentially_hazardous_asteroid': True,
+                'close_approach_date': '2024-10-13',
+                'nasa_jpl_url': 'https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=1036',
+                'absolute_magnitude_h': 9.45
+            },
+            {
+                'id': '4179',
+                'name': '4179 Toutatis',
+                'estimated_diameter_km_min': 2.5,
+                'estimated_diameter_km_max': 5.4,
+                'relative_velocity_km_s': 11.02,
+                'miss_distance_km': 18000000,
+                'is_potentially_hazardous_asteroid': True,
+                'close_approach_date': '2004-09-29',
+                'nasa_jpl_url': 'https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=4179',
+                'absolute_magnitude_h': 15.3
+            },
+            {
+                'id': '2022_AP7',
+                'name': '2022 AP7',
+                'estimated_diameter_km_min': 1.1,
+                'estimated_diameter_km_max': 2.3,
+                'relative_velocity_km_s': 8.15,
+                'miss_distance_km': 4200000,
+                'is_potentially_hazardous_asteroid': True,
+                'close_approach_date': '2022-01-07',
+                'nasa_jpl_url': 'https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=2022_AP7',
+                'absolute_magnitude_h': 15.6
+            }
+        ]
+    
+    def _process_asteroid_data(self, asteroid: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """
+        Procesar datos de un asteroide individual
+        
+        Args:
+            asteroid: Datos RAW del asteroide desde NASA API
+            
+        Returns:
+            Datos procesados del asteroide o None si hay error
+        """
+        try:
+            # Obtener datos de aproximación más cercana
+            close_approach = asteroid.get('close_approach_data', [{}])[0]
+            
+            # Extraer diámetros
+            diameter_data = asteroid.get('estimated_diameter', {}).get('kilometers', {})
+            diameter_min = diameter_data.get('estimated_diameter_min', 0)
+            diameter_max = diameter_data.get('estimated_diameter_max', 0)
+            
+            # Extraer velocidad y distancia
+            velocity_kmh = float(close_approach.get('relative_velocity', {}).get('kilometers_per_hour', 0))
+            velocity_kms = velocity_kmh / 3600  # Convertir a km/s
+            
+            distance_km = float(close_approach.get('miss_distance', {}).get('kilometers', 0))
+            
+            return {
+                'id': asteroid.get('id', ''),
+                'name': asteroid.get('name', '').replace('(', '').replace(')', ''),
+                'estimated_diameter_km_min': round(diameter_min, 3),
+                'estimated_diameter_km_max': round(diameter_max, 3),
+                'relative_velocity_km_s': round(velocity_kms, 2),
+                'miss_distance_km': round(distance_km, 0),
+                'is_potentially_hazardous_asteroid': asteroid.get('is_potentially_hazardous_asteroid', False),
+                'close_approach_date': close_approach.get('close_approach_date', ''),
+                'nasa_jpl_url': asteroid.get('nasa_jpl_url', ''),
+                'absolute_magnitude_h': asteroid.get('absolute_magnitude_h', 0)
+            }
+            
+        except Exception as e:
+            logger.warning(f"Error procesando datos del asteroide: {e}")
+            return None
     
     def get_asteroid_details(self, asteroid_id: str) -> Dict[str, Any]:
         """
