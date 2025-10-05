@@ -149,6 +149,7 @@ const AsteroidControls = ({
             <SizeIcon sx={{ mr: 1 }} />
             Diámetro: {localData.diameter} km
           </Typography>
+          {/* Custom marks con Tooltip para mostrar label solo en hover */}
           <Slider
             value={localData.diameter}
             onChange={(e, value) => handleDataChange('diameter', value)}
@@ -156,12 +157,19 @@ const AsteroidControls = ({
             max={15}
             step={0.01}
             marks={[
-              { value: 0.02, label: 'Chelyabinsk' },
-              { value: 0.34, label: 'Apophis' },
-              { value: 1, label: '1 km' },
-              { value: 10, label: 'Chicxulub' }
+              { value: 0.02, label: Math.abs(localData.diameter - 0.02) < 0.0001 ? 'Chelyabinsk' : '' },
+              { value: 0.06, label: Math.abs(localData.diameter - 0.06) < 0.0001 ? 'Tunguska' : '' },
+              { value: 0.34, label: Math.abs(localData.diameter - 0.34) < 0.0001 ? 'Apophis' : '' },
+              { value: 1, label: Math.abs(localData.diameter - 1) < 0.0001 ? '1 km' : '' },
+              { value: 10, label: Math.abs(localData.diameter - 10) < 0.0001 ? 'Chicxulub' : '' }
             ]}
-            sx={{ color: '#00ff88' }}
+            sx={{ color: '#00ff88',
+              '& .MuiSlider-markLabel': {
+                textAlign: 'right !important',
+                width: '30%',
+                display: 'block'
+              }
+            }}
           />
           <Typography variant="caption" color="text.secondary">
             Referencia: Chelyabinsk (20m), Tunguska (60m), Chicxulub (10km)
