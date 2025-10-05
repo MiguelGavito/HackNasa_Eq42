@@ -84,6 +84,7 @@ const Earth = ({ impactLocation, showImpact, impactIntensity, onEarthClick }) =>
         ref={earthRef} 
         args={[1, 64, 64]} 
         position={[0, 0, 0]}
+        rotation={[0,Math.PI / 1, 0]}
         onClick={onEarthClick}
       >
         <meshPhongMaterial 
