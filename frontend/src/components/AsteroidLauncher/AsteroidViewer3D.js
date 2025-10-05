@@ -38,8 +38,10 @@ const Earth = ({ impactLocation, showImpact, impactIntensity, onEarthClick }) =>
   const getImpactPosition = () => {
     if (!impactLocation) return [0, 0, 1];
     
-    const lat = (impactLocation.lat * Math.PI) / 180;
-    const lon = (impactLocation.lon * Math.PI) / 180;
+    // Usar visualCoords para posición exacta del marcador
+    const coords = impactLocation.visualCoords || { lat: impactLocation.lat, lon: impactLocation.lon };
+    const lat = (coords.lat * Math.PI) / 180;
+    const lon = (coords.lon * Math.PI) / 180;
     const radius = 1.01; // Ligeramente fuera de la superficie
     
     const x = radius * Math.cos(lat) * Math.cos(lon);
@@ -54,8 +56,10 @@ const Earth = ({ impactLocation, showImpact, impactIntensity, onEarthClick }) =>
   const calculateRingRotation = () => {
     if (!impactLocation) return [-Math.PI / 2, 0, 0];
   
-    const lat = (impactLocation.lat * Math.PI) / 180;
-    const lon = (impactLocation.lon * Math.PI) / 180;
+    // Usar visualCoords para posición exacta del anillo
+    const coords = impactLocation.visualCoords || { lat: impactLocation.lat, lon: impactLocation.lon };
+    const lat = (coords.lat * Math.PI) / 180;
+    const lon = (coords.lon * Math.PI) / 180;
     
     // Crear vector normal hacia el centro de la Tierra
     const normal = new THREE.Vector3(
@@ -84,7 +88,7 @@ const Earth = ({ impactLocation, showImpact, impactIntensity, onEarthClick }) =>
         ref={earthRef} 
         args={[1, 64, 64]} 
         position={[0, 0, 0]}
-        rotation={[0, Math.PI / 1, 0]}
+        rotation={[0, 0, 0]}
         onClick={onEarthClick}
       >
         <meshPhongMaterial 
@@ -314,8 +318,10 @@ const AsteroidViewer3D = ({
   const getTargetPosition = () => {
     if (!impactLocation) return [1, 0, 0];
     
-    const lat = (impactLocation.lat * Math.PI) / 180;
-    const lon = (impactLocation.lon * Math.PI) / 180;
+    // Usar visualCoords para posición exacta del objetivo
+    const coords = impactLocation.visualCoords || { lat: impactLocation.lat, lon: impactLocation.lon };
+    const lat = (coords.lat * Math.PI) / 180;
+    const lon = (coords.lon * Math.PI) / 180;
     
     const x = Math.cos(lat) * Math.cos(lon);
     const y = Math.sin(lat);
@@ -347,13 +353,19 @@ const AsteroidViewer3D = ({
         // Normalizar a la superficie de la esfera (radio = 1)
         const normalizedPosition = worldPosition.clone().normalize();
         
-        // Convertir posición 3D a lat/lon
-        const lat = Math.asin(normalizedPosition.y) * (180 / Math.PI);
-        let lon = Math.atan2(normalizedPosition.z, normalizedPosition.x) * (180 / Math.PI);
-        // Normalizar longitud a [-180, 180]
-        if (lon > 180) lon -= 360;
-        if (lon < -180) lon += 360;
-        onLocationSelect({ lat, lon });
+        // Convertir posición 3D a lat/lon usando fórmula geográfica estándar
+        const visualLat = Math.asin(normalizedPosition.y) * (180 / Math.PI);
+        const visualLon = Math.atan2(normalizedPosition.z, normalizedPosition.x) * (180 / Math.PI);
+        
+        // Coordenadas reales para API demográfica (geográficamente correctas)
+        const realLat = visualLat;
+        const realLon = -visualLon; // Invertir longitud para datos correctos
+        
+        onLocationSelect({ 
+          lat: realLat, 
+          lon: realLon,
+          visualCoords: { lat: visualLat, lon: visualLon } // Para simulación visual
+        });
       }
       setClickCount(0);
     } else {
@@ -384,9 +396,18 @@ const AsteroidViewer3D = ({
       const intersectionPoint = new THREE.Vector3();
       
       if (raycaster.ray.intersectSphere(sphere, intersectionPoint)) {
-        const lat = Math.asin(intersectionPoint.y) * (180 / Math.PI);
-        const lon = Math.atan2(intersectionPoint.z, intersectionPoint.x) * (180 / Math.PI);
-        onLocationSelect({ lat, lon });
+        const visualLat = Math.asin(intersectionPoint.y) * (180 / Math.PI);
+        const visualLon = Math.atan2(intersectionPoint.z, intersectionPoint.x) * (180 / Math.PI);
+        
+        // Coordenadas reales para API demográfica (geográficamente correctas)
+        const realLat = visualLat;
+        const realLon = -visualLon; // Invertir longitud para datos correctos
+        
+        onLocationSelect({ 
+          lat: realLat, 
+          lon: realLon,
+          visualCoords: { lat: visualLat, lon: visualLon } // Para simulación visual
+        });
       }
       
     setClickCount(0);
@@ -427,11 +448,19 @@ const AsteroidViewer3D = ({
         const intersectionPoint = new THREE.Vector3();
         
         if (raycaster.ray.intersectSphere(sphere, intersectionPoint)) {
-          // Convertir posición 3D a lat/lon
-          const lat = Math.asin(intersectionPoint.y) * (180 / Math.PI);
-          const lon = Math.atan2(intersectionPoint.z, intersectionPoint.x) * (180 / Math.PI);
+          // Convertir posición 3D a lat/lon usando fórmula geográfica estándar
+          const visualLat = Math.asin(intersectionPoint.y) * (180 / Math.PI);
+          const visualLon = Math.atan2(intersectionPoint.z, intersectionPoint.x) * (180 / Math.PI);
           
-          onLocationSelect({ lat, lon });
+          // Coordenadas reales para API demográfica (geográficamente correctas)
+          const realLat = visualLat;
+          const realLon = -visualLon; // Invertir longitud para datos correctos
+          
+          onLocationSelect({ 
+            lat: realLat, 
+            lon: realLon,
+            visualCoords: { lat: visualLat, lon: visualLon } // Para simulación visual
+          });
         } 
         setClickCount(0); // Reset
       } else {

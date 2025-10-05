@@ -183,10 +183,16 @@ class DemographicService:
             logger.info(f"DEBUG - Poblaciones: inmediata={immediate_pop:.0f}, severa={severe_pop:.0f}, moderada={moderate_pop:.0f}")
             logger.info(f"DEBUG - Factor energía: {energy_factor:.3f} (de {energy_megatons:.2f} MT)")
             
-            # Estimar víctimas por zona (tasas de mortalidad escaladas por energía)
-            immediate_casualties = int(immediate_pop * 0.85 * energy_factor)  # 85% mortalidad escalada
-            severe_casualties = int((severe_pop - immediate_pop) * 0.45 * energy_factor)  # 45% escalada
-            moderate_casualties = int((moderate_pop - severe_pop) * 0.08 * energy_factor)  # 8% escalada
+            # Calcular letalidad basada en distancia real del impacto
+            immediate_casualties = self._calculate_casualties_by_distance(
+                lat, lon, immediate_radius, immediate_pop, 0.85, energy_factor
+            )
+            severe_casualties = self._calculate_casualties_by_distance(
+                lat, lon, severe_damage_radius, severe_pop - immediate_pop, 0.45, energy_factor
+            )
+            moderate_casualties = self._calculate_casualties_by_distance(
+                lat, lon, moderate_damage_radius, moderate_pop - severe_pop, 0.08, energy_factor
+            )
             
             total_casualties = immediate_casualties + severe_casualties + moderate_casualties
             total_affected = int(moderate_pop)
@@ -238,33 +244,37 @@ class DemographicService:
     def _is_ocean(self, lat: float, lon: float) -> bool:
         """Determinar si las coordenadas están en océano usando áreas continentales conocidas"""
         
-        # Definir continentes principales (más preciso que definir océanos)
+        # Definir continentes principales con rangos corregidos y más precisos
         
-        # América del Norte
-        if 25 < lat < 70 and -170 < lon < -50:
+        # América del Norte (incluyendo Groenlandia, Alaska, Centroamérica)
+        if 10 < lat < 85 and -180 < lon < -50:
             return False
             
-        # América del Sur  
-        if -55 < lat < 15 and -85 < lon < -35:
+        # América del Sur (incluyendo islas del Caribe)
+        if -60 < lat < 15 and -90 < lon < -30:
             return False
             
-        # Europa
-        if 35 < lat < 75 and -25 < lon < 50:
+        # Europa (incluyendo Islandia, Reino Unido, Escandinavia)
+        if 35 < lat < 75 and -30 < lon < 60:
             return False
             
-        # África
-        if -35 < lat < 40 and -20 < lon < 55:
+        # África (incluyendo Madagascar y islas cercanas)  
+        if -40 < lat < 40 and -25 < lon < 60:
             return False
             
-        # Asia
-        if -10 < lat < 80 and 25 < lon < 180:
+        # Asia (incluyendo Rusia, China, India, Indonesia, Japón)
+        if -15 < lat < 85 and 25 < lon < 180:
             return False
             
-        # Australia/Oceanía
-        if -50 < lat < -10 and 110 < lon < 180:
+        # Australia/Oceanía (incluyendo Nueva Zelanda y islas del Pacífico)
+        if -55 < lat < -5 and 110 < lon < 180:
             return False
             
-        # Si no está en ningún continente, probablemente es océano
+        # Antártida
+        if lat < -60:
+            return False
+            
+        # Si no está en ningún continente, es océano
         return True
     
     def _find_nearest_major_city(self, lat: float, lon: float) -> Dict[str, Any]:
@@ -308,9 +318,21 @@ class DemographicService:
             return {"type": "rural_sparse", "density": self.regional_density_estimates["rural_sparse"]}
     
     def _estimate_population_in_radius(self, lat: float, lon: float, radius_km: float, density: float) -> float:
-        """Estimar población en un radio específico"""
+        """Estimar población en un radio específico usando áreas graduales"""
+        # Área básica circular
         area_km2 = math.pi * (radius_km ** 2)
-        return area_km2 * density
+        base_population = area_km2 * density
+        
+        # Factor de corrección por distribución no uniforme
+        # En ciudades reales, la densidad no es uniforme - más densa en el centro
+        if density > 10000:  # Ciudades muy densas
+            distribution_factor = 0.7  # 70% de la densidad teórica
+        elif density > 1000:  # Ciudades medianas
+            distribution_factor = 0.8  # 80% de la densidad teórica
+        else:  # Áreas rurales
+            distribution_factor = 0.9  # 90% de la densidad teórica (más uniforme)
+            
+        return base_population * distribution_factor
     
     def _estimate_tsunami_casualties(self, lat: float, lon: float, energy_megatons: float) -> int:
         """Estimar víctimas adicionales por tsunami (impactos oceánicos)"""
@@ -353,6 +375,55 @@ class DemographicService:
         c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
         
         return R * c
+    
+    def _calculate_casualties_by_distance(self, impact_lat: float, impact_lon: float, 
+                                        radius_km: float, population: float, 
+                                        base_mortality: float, energy_factor: float) -> int:
+        """
+        Calcular víctimas basado en distancia real del impacto con letalidad degradada
+        
+        Args:
+            impact_lat: Latitud del impacto
+            impact_lon: Longitud del impacto  
+            radius_km: Radio de la zona de daño
+            population: Población en la zona
+            base_mortality: Tasa de mortalidad base para la zona
+            energy_factor: Factor de escalado por energía
+            
+        Returns:
+            Número de víctimas estimadas
+        """
+        if population <= 0:
+            return 0
+            
+        # Simular distribución de población dentro del radio
+        # En lugar de asumir mortalidad uniforme, usar degradación por distancia
+        
+        total_casualties = 0
+        
+        # Dividir el área en anillos concéntricos para simular distancia variable
+        num_rings = max(3, int(radius_km))  # Mínimo 3 anillos, más para áreas grandes
+        
+        for ring in range(num_rings):
+            ring_inner_radius = (ring / num_rings) * radius_km
+            ring_outer_radius = ((ring + 1) / num_rings) * radius_km
+            
+            # Population in this ring (proportional to area)
+            ring_area = math.pi * (ring_outer_radius**2 - ring_inner_radius**2)
+            total_area = math.pi * radius_km**2
+            ring_population = population * (ring_area / total_area)
+            
+            # Letalidad degradada por distancia
+            avg_distance = (ring_inner_radius + ring_outer_radius) / 2
+            distance_factor = max(0.1, 1 - (avg_distance / radius_km) * 0.5)  # Reduce 50% en el borde
+            
+            # Mortalidad final para este anillo
+            ring_mortality = base_mortality * distance_factor * energy_factor
+            ring_casualties = int(ring_population * ring_mortality)
+            
+            total_casualties += ring_casualties
+            
+        return total_casualties
     
     def _get_real_demographic_data(self, lat: float, lon: float) -> Dict[str, Any]:
         """
